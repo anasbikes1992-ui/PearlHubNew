@@ -92,7 +92,7 @@ export default function ProviderDashboard() {
   } = useStore();
   
   const [modal, setModal] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'crm' | 'fleet' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'listings' | 'crm' | 'fleet' | 'taxi' | 'settings'>('overview');
   const [activeFleetVehicle, setActiveFleetVehicle] = useState<any>(null);
 
   const { user: authUser, profile } = useAuth();
@@ -184,6 +184,7 @@ export default function ProviderDashboard() {
             { id: 'listings', label: 'My Listings', icon: <List size={14} /> },
             { id: 'crm', label: 'Advanced CRM', icon: <Users size={14} /> },
             (canListVehicle || userRole === 'owner') && { id: 'fleet', label: 'Fleet Ops', icon: <Truck size={14} /> },
+            (canListVehicle) && { id: 'taxi', label: 'Taxi & Rides', icon: <span className="text-sm">🚕</span> },
             { id: 'settings', label: 'Acc. Settings', icon: <Settings size={14} /> },
           ].filter(Boolean).map((tab: any) => (
             <button
@@ -406,13 +407,13 @@ export default function ProviderDashboard() {
               />
             )}
 
-            {myBusinesses.length > 0 && (
+            {smeBusinesses.length > 0 && (
               <div className="bg-white/5 rounded-3xl border border-white/10 shadow-xl overflow-hidden">
                 <div className="px-8 py-6 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
                   <h2 className="font-black text-pearl text-base uppercase tracking-widest flex items-center gap-3">🛍️ My Registered SMEs</h2>
                 </div>
                 <div className="divide-y divide-white/5">
-                  {myBusinesses.map((biz) => (
+                  {smeBusinesses.map((biz) => (
                     <div key={biz.id} className="p-8 hover:bg-white/[0.01] transition-all">
                       <div className="flex items-center justify-between mb-8">
                         <div>
@@ -495,6 +496,46 @@ export default function ProviderDashboard() {
                         </Button>
                      </div>
                    ))}
+                </div>
+             </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'taxi' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+             <div className="bg-white/5 rounded-3xl border border-white/10 p-8">
+                <div className="flex justify-between flex-wrap gap-4 mb-8">
+                  <h2 className="font-black text-pearl text-lg uppercase tracking-widest flex items-center gap-3">
+                     <span className="text-2xl">🚕</span> Taxi & Ride-Hailing Hub
+                  </h2>
+                  <div className="flex items-center gap-4 bg-obsidian px-5 py-2.5 rounded-2xl border border-white/5 shadow-inner">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-mist">Driver Status</span>
+                    <Switch checked={true} onCheckedChange={() => {}} className="data-[state=checked]:bg-emerald-500" />
+                    <span className="text-xs font-bold text-emerald-500">ONLINE</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-2">Wallet Balance</h4>
+                    <p className="text-2xl font-black text-pearl">Rs. 35,400</p>
+                  </div>
+                  <div className="bg-primary/10 border border-primary/20 rounded-2xl p-6">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Today's Rides</h4>
+                    <p className="text-2xl font-black text-pearl">8</p>
+                  </div>
+                  <div className="bg-sapphire/10 border border-sapphire/20 rounded-2xl p-6">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-sapphire mb-2">Completion Rate</h4>
+                    <p className="text-2xl font-black text-pearl">98%</p>
+                  </div>
+                </div>
+
+                <div className="bg-zinc-900 rounded-2xl border border-white/5 p-6">
+                  <h3 className="text-sm font-black text-white uppercase tracking-widest mb-4">Active & Incoming Requests</h3>
+                  <div className="p-6 border border-dashed border-white/10 rounded-xl bg-white/[0.02] text-center">
+                    <div className="w-12 h-12 rounded-full border-[3px] border-white/10 border-t-primary animate-spin mx-auto mb-4" />
+                    <p className="text-xs font-bold text-mist uppercase tracking-widest">Listening for ride requests in your area...</p>
+                  </div>
                 </div>
              </div>
           </motion.div>

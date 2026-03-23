@@ -325,3 +325,85 @@ export const TIER_LABELS: Record<ProviderTier, { label: string; icon: string; co
   pro:      { label: "Pro",       icon: "★", color: "text-primary",     minBookings: 50,  minRating: 4.5 },
   elite:    { label: "Elite",     icon: "♛", color: "text-emerald-400", minBookings: 100, minRating: 4.8 },
 };
+
+// ─────────────────────────────────────────────
+// TAXI / RIDE-HAILING
+// ─────────────────────────────────────────────
+export type TaxiRideStatus = 'searching' | 'accepted' | 'arrived' | 'in_transit' | 'completed' | 'cancelled';
+
+export interface TaxiVehicleCategory {
+  id: string;
+  name: string;
+  is_active: boolean;
+  default_seats: number;
+  base_fare: number;
+  per_km_rate: number;
+  icon: string;
+  created_at: string;
+}
+
+export interface TaxiRide {
+  id: string;
+  customer_id: string;
+  provider_id: string | null;
+  vehicle_category_id: string | null;
+  pickup_lat: number;
+  pickup_lng: number;
+  pickup_address: string | null;
+  dropoff_lat: number;
+  dropoff_lng: number;
+  dropoff_address: string | null;
+  status: TaxiRideStatus;
+  fare: number | null;
+  distance_km: number | null;
+  ride_module: string;
+  parcel_details: Record<string, any> | null;
+  stops: Record<string, any>[] | null;
+  payment_method: string;
+  payment_status: string;
+  surge_multiplier: number;
+  scheduled_for: string | null;
+  is_emergency_sos: boolean;
+  promo_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaxiPromo {
+  id: string;
+  code: string;
+  discount_type: 'percentage' | 'flat';
+  discount_amount: number;
+  max_uses: number;
+  uses_count: number;
+  valid_until: string | null;
+  is_active: boolean;
+}
+
+export interface TaxiChatMessage {
+  id: string;
+  ride_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+}
+
+export interface TaxiKYC {
+  id: string;
+  provider_id: string;
+  nic_number: string | null;
+  license_number: string | null;
+  verification_status: 'pending' | 'approved' | 'rejected';
+  submitted_at: string;
+}
+
+export interface TaxiRating {
+  id: string;
+  ride_id: string;
+  reviewer_id: string;
+  target_id: string;
+  rating: number;
+  feedback: string;
+  tip_amount: number;
+  created_at: string;
+}

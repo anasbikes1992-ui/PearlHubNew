@@ -45,6 +45,7 @@ const HomePage = () => {
     { id: "property", title: "Property", subtitle: "Sale • Rent • Lease", icon: "🏘️", count: "6,240+", colorClass: "text-emerald border-emerald", desc: "Find your perfect property across Sri Lanka. Verified owners and licensed brokers." },
     { id: "stays", title: "Stays", subtitle: "Hotels • Villas • Hostels", icon: "🏨", count: "3,180+", colorClass: "text-sapphire border-sapphire", desc: "From 5-star luxury to boutique lodges. Sri Lanka Tourism Board approved." },
     { id: "vehicles", title: "Rent-a-Vehicle", subtitle: "Cars • Vans • Luxury Coaches", icon: "🚗", count: "1,820+", colorClass: "text-ruby border-ruby", desc: "Self-drive or chauffeured. Cars, vans, jeeps, buses island-wide." },
+    { id: "taxi", title: "Pearl Taxi", subtitle: "Moto • Cars • Vans • Buses", icon: "🚕", count: "13 Types", colorClass: "text-primary border-primary", desc: "On-demand rides and parcels. Live tracking, SOS, and cashless payments." },
     { id: "events", title: "Events & Cinema", subtitle: "Tickets • Seats • QR Entry", icon: "🎭", count: "540+", colorClass: "text-indigo border-indigo", desc: "Cinema, concerts, and sports. Real-time seat selection with QR tickets." },
     { id: "sme", title: "SME Marketplace", subtitle: "Local Goods • Services", icon: "🏪", count: "1,200+", colorClass: "text-amber-500 border-amber-500", desc: "Support local businesses. Authentic Sri Lankan products, crafts, and services." },
   ];
@@ -128,7 +129,7 @@ const HomePage = () => {
             <h2 className="text-3xl mb-2">Explore Sri Lanka with Pearl Hub</h2>
             <p className="text-muted-foreground text-base">Four powerful platforms, one seamless experience</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {categoryCards.map((cat, i) => (
               <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 onClick={() => navigate(`/${cat.id}`)}

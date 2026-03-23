@@ -34,6 +34,7 @@ const ProviderDashboard = lazy(() => import("@/pages/provider/ProviderDashboard"
 const NotFound          = lazy(() => import("@/pages/NotFound"));
 const CustomerTermsPage = lazy(() => import("@/pages/CustomerTermsPage"));
 const ProviderTermsPage = lazy(() => import("@/pages/ProviderTermsPage"));
+const TaxiPage          = lazy(() => import("@/pages/TaxiPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -152,6 +153,7 @@ export const router = createBrowserRouter([
       { path: "property",  element: <PropertyPage /> },
       { path: "stays",     element: <StaysPage /> },
       { path: "vehicles",  element: <VehiclesPage /> },
+      { path: "taxi",      element: <TaxiPage /> },
       { path: "events",    element: <EventsPage /> },
       { path: "dashboard", element: <RequireAuth><DashboardPage /></RequireAuth> },
       { path: "about",     element: <AboutPage /> },

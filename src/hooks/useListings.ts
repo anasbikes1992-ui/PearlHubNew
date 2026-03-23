@@ -253,5 +253,100 @@ export function useInvalidateListings() {
     qc.invalidateQueries({ queryKey: ["provider-vehicles"] });
     qc.invalidateQueries({ queryKey: ["provider-events"] });
     qc.invalidateQueries({ queryKey: ["provider-properties"] });
+    qc.invalidateQueries({ queryKey: ["taxi-rides"] });
+    qc.invalidateQueries({ queryKey: ["taxi-categories"] });
   };
 }
+
+// ── Taxi: Vehicle Categories ──────────────────────────────────
+export function useTaxiCategories() {
+  return useQuery({
+    queryKey: ["taxi-categories"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("taxi_vehicle_categories")
+        .select("*")
+        .eq("is_active", true)
+        .order("base_fare", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ── Taxi: Customer Rides ──────────────────────────────────────
+export function useTaxiRides(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["taxi-rides", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await (supabase as any)
+        .from("taxi_rides")
+        .select("*")
+        .eq("customer_id", userId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!userId,
+  });
+}
+
+// ── Taxi: Provider Active Rides ───────────────────────────────
+export function useTaxiProviderRides(providerId: string | undefined) {
+  return useQuery({
+    queryKey: ["taxi-provider-rides", providerId],
+    queryFn: async () => {
+      if (!providerId) return [];
+      const { data, error } = await (supabase as any)
+        .from("taxi_rides")
+        .select("*")
+        .eq("provider_id", providerId)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!providerId,
+  });
+}
+
+// ── Taxi: Validate Promo Code ─────────────────────────────────
+export async function validateTaxiPromo(code: string) {
+  const { data, error } = await (supabase as any)
+    .from("taxi_promo_codes")
+    .select("*")
+    .eq("code", code.trim().toUpperCase())
+    .eq("is_active", true)
+    .single();
+
+  if (error || !data) return { valid: false, error: "Invalid promo code" };
+  if (data.uses_count >= data.max_uses) return { valid: false, error: "Promo exhausted" };
+  if (data.valid_until && new Date(data.valid_until) < new Date()) return { valid: false, error: "Promo expired" };
+  return { valid: true, discount_type: data.discount_type, discount_amount: data.discount_amount, id: data.id };
+}
+
+// ── Taxi: Admin Stats ─────────────────────────────────────────
+export function useTaxiAdminStats() {
+  return useQuery({
+    queryKey: ["taxi-admin-stats"],
+    queryFn: async () => {
+      const [ridesRes, driversRes, kycRes] = await Promise.all([
+        (supabase as any).from("taxi_rides").select("fare, status", { count: "exact" }),
+        (supabase as any).from("taxi_provider_locations").select("*", { count: "exact" }).eq("is_online", true),
+        (supabase as any).from("taxi_kyc_documents").select("*", { count: "exact" }).eq("verification_status", "pending"),
+      ]);
+      const completed = ridesRes.data?.filter((r: any) => r.status === "completed") || [];
+      const revenue = completed.reduce((sum: number, r: any) => sum + (r.fare || 0), 0);
+      return {
+        revenue, rides: completed.length,
+        driversOnline: driversRes.count || 0,
+        pendingKyc: kycRes.count || 0,
+        totalRides: ridesRes.count || 0,
+      };
+    },
+    staleTime: 30 * 1000,
+  });
+}
+

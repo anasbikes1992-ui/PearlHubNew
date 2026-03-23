@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Navigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -12,7 +13,7 @@ import { ListingStatus } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 
-type AdminTab = 'overview' | 'stays' | 'vehicles' | 'events' | 'properties' | 'social' | 'sme' | 'users' | 'alerts' | 'ops' | 'settings';
+type AdminTab = 'overview' | 'stays' | 'vehicles' | 'taxi' | 'events' | 'properties' | 'social' | 'sme' | 'users' | 'alerts' | 'ops' | 'settings';
 
 const StatusBadge = ({ status }: { status: ListingStatus }) => {
   const variants: Record<ListingStatus, string> = {
@@ -207,6 +208,7 @@ export default function AdminDashboard() {
     { id: 'overview', label: 'Overview', icon: '📊' },
     { id: 'stays', label: 'Stays', icon: '🏨', count: stats.stays },
     { id: 'vehicles', label: 'Vehicles', icon: '🚗', count: stats.vehicles },
+    { id: 'taxi', label: 'Taxi', icon: '🚕' },
     { id: 'events', label: 'Events', icon: '🎭', count: stats.events },
     { id: 'properties', label: 'Props', icon: '🏡', count: stats.properties },
     { id: 'social', label: 'Social', icon: '🌏', count: stats.social },
@@ -287,6 +289,7 @@ export default function AdminDashboard() {
                 {[
                   { label: 'Review Stays', icon: '🏨', action: () => setTab('stays') },
                   { label: 'Manage Fleet', icon: '🚗', action: () => setTab('vehicles') },
+                  { label: 'Taxi Config', icon: '🚕', action: () => setTab('taxi') },
                   { label: 'Audit Events', icon: '🎭', action: () => setTab('events') },
                   { label: 'Property List', icon: '🏡', action: () => setTab('properties') },
                   { label: 'Social Mods', icon: '🌏', action: () => setTab('social') },
@@ -334,6 +337,50 @@ export default function AdminDashboard() {
             onStatusChange={(id, status, note) => updateVehicle(id, { status, admin_note: note })}
             onDelete={deleteVehicle}
           />
+        )}
+
+        {/* Taxi Config Tab */}
+        {tab === 'taxi' && (
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[
+                { label: 'Total Revenue', value: 'Rs. 450K', icon: '💰' },
+                { label: 'Total Rides', value: '1,240', icon: '🚕' },
+                { label: 'Drivers Online', value: '85', icon: '🟢' },
+                { label: 'Pending KYC', value: '12', icon: '📄' },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-white/5 rounded-2xl border border-white/10 p-6 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">{stat.icon}</div>
+                  <div>
+                    <div className="text-xl font-black text-pearl">{stat.value}</div>
+                    <div className="text-[10px] uppercase font-black tracking-widest text-mist">{stat.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-white/5 rounded-[2.5rem] border border-white/10 p-8">
+                <h3 className="text-lg font-black text-white uppercase tracking-widest mb-6">Vehicle Categories</h3>
+                <div className="space-y-3">
+                  {['Moto', 'TUK TUK', 'Car Economy', 'Car Electric', 'Buddy Van', 'SUV'].map((cat) => (
+                    <div key={cat} className="flex items-center justify-between p-4 bg-zinc-900 border border-white/5 rounded-2xl">
+                      <span className="text-sm font-bold text-pearl">{cat}</span>
+                      <Switch checked={true} onCheckedChange={() => {}} className="data-[state=checked]:bg-emerald-500" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-white/5 rounded-[2.5rem] border border-white/10 p-8">
+                <h3 className="text-lg font-black text-white uppercase tracking-widest mb-6">KYC Verification Queue</h3>
+                <div className="p-10 border border-dashed border-white/10 rounded-2xl bg-white/[0.02] text-center">
+                  <span className="text-4xl mb-4 block">✅</span>
+                  <p className="font-bold text-white text-sm">All Caught Up</p>
+                  <p className="text-[10px] text-mist font-black uppercase tracking-widest mt-1">No pending driver verifications</p>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Events Table */}

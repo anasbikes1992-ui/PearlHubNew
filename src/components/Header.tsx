@@ -63,6 +63,7 @@ const Header = () => {
     { path: "/property", label: t("nav.property"), icon: "🏘️" },
     { path: "/stays", label: t("nav.stays"), icon: "🏨" },
     { path: "/vehicles", label: t("nav.vehicles"), icon: "🚗" },
+    { path: "/taxi", label: "Taxi", icon: "🚕" },
     { path: "/events", label: t("nav.events"), icon: "🎭" },
     { path: "/sme", label: t("nav.sme"), icon: "🛍️" },
     { path: "/social", label: t("nav.social"), icon: "🌐" },
