@@ -136,11 +136,11 @@ CREATE POLICY "Providers can view own earnings" ON public.earnings FOR SELECT TO
 CREATE POLICY "Users can manage own languages" ON public.user_languages FOR ALL TO authenticated USING (auth.uid() = user_id);
 
 -- Update RLS to only show approved and active listings to public
-DROP POLICY "Anyone can read approved stays" ON public.stays_listings;
+DROP POLICY IF EXISTS "Anyone can read approved stays" ON public.stays_listings;
 CREATE POLICY "Anyone can read approved active stays" ON public.stays_listings FOR SELECT TO anon, authenticated USING (moderation_status = 'approved' AND active = true);
 
-DROP POLICY "Anyone can read approved vehicles" ON public.vehicles_listings;
+DROP POLICY IF EXISTS "Anyone can read approved vehicles" ON public.vehicles_listings;
 CREATE POLICY "Anyone can read approved active vehicles" ON public.vehicles_listings FOR SELECT TO anon, authenticated USING (moderation_status = 'approved' AND active = true);
 
-DROP POLICY "Anyone can read approved events" ON public.events_listings;
+DROP POLICY IF EXISTS "Anyone can read approved events" ON public.events_listings;
 CREATE POLICY "Anyone can read approved active events" ON public.events_listings FOR SELECT TO anon, authenticated USING (moderation_status = 'approved' AND active = true);

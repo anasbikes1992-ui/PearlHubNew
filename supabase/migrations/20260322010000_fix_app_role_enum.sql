@@ -2,12 +2,21 @@
 -- Original enum: customer | owner | broker | admin | stay_provider | event_organizer | sme
 -- Missing: vehicle_provider | event_provider
 
-ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'vehicle_provider';
-ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'event_provider';
+DO $$
+BEGIN
+    -- Add vehicle_provider if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid = t.oid WHERE t.typname = 'app_role' AND e.enumlabel = 'vehicle_provider') THEN
+        ALTER TYPE public.app_role ADD VALUE 'vehicle_provider';
+    END IF;
 
--- Rename event_organizer → event_provider for consistency
--- (Can't rename enum values in Postgres — we add the new one and map existing rows)
-UPDATE public.profiles    SET role = 'event_provider' WHERE role::text = 'event_organizer';
+    -- Add event_provider if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM pg_enum e JOIN pg_type t ON e.enumtypid = t.oid WHERE t.typname = 'app_role' AND e.enumlabel = 'event_provider') THEN
+        ALTER TYPE public.app_role ADD VALUE 'event_provider';
+    END IF;
+END $$;
+
+-- Note: Due to PostgreSQL limitations, we can't update existing rows in the same transaction
+-- as adding enum values. This will be handled in a separate migration or manually.
 UPDATE public.user_roles  SET role = 'event_provider' WHERE role::text = 'event_organizer';
 
 -- Update the handle_new_user trigger to use the role from metadata

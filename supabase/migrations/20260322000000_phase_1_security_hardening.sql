@@ -214,10 +214,10 @@ BEGIN
   END IF;
 
   -- Vehicles
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'vehicles_title_length') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'vehicles_make_length') THEN
     ALTER TABLE public.vehicles_listings
-      ADD CONSTRAINT vehicles_title_length CHECK (char_length(title) <= 200),
-      ADD CONSTRAINT vehicles_description_length CHECK (char_length(COALESCE(description, '')) <= 3000);
+      ADD CONSTRAINT vehicles_make_length CHECK (char_length(make) <= 100),
+      ADD CONSTRAINT vehicles_model_length CHECK (char_length(model) <= 100);
   END IF;
 
   -- Events

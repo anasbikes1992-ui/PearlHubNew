@@ -9,7 +9,7 @@ END $$;
 
 -- 2. Create User Reports Table
 CREATE TABLE IF NOT EXISTS user_reports (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     reporter_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
     reported_user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
     listing_id UUID,
@@ -52,7 +52,7 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS verification_badges TEXT[] DEFAULT
 
 -- 5. Admin Actions Audit Table
 CREATE TABLE IF NOT EXISTS admin_actions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     admin_id UUID REFERENCES profiles(id),
     action_type TEXT NOT NULL,
     target_type TEXT NOT NULL,
