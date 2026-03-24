@@ -3,6 +3,8 @@
 -- 2026-03-23
 -- ══════════════════════════════════════════════════════════════
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- ── 1. Booking messages (multilingual real-time chat) ─────────
 CREATE TABLE IF NOT EXISTS public.booking_messages (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -19,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.booking_messages (
 ALTER TABLE public.booking_messages ENABLE ROW LEVEL SECURITY;
 
 -- Parties to a booking can read its messages
+DROP POLICY IF EXISTS "Booking parties can read messages" ON public.booking_messages;
 CREATE POLICY "Booking parties can read messages"
   ON public.booking_messages FOR SELECT TO authenticated
   USING (
@@ -37,6 +40,7 @@ CREATE POLICY "Booking parties can read messages"
     )
   );
 
+DROP POLICY IF EXISTS "Booking parties can send messages" ON public.booking_messages;
 CREATE POLICY "Booking parties can send messages"
   ON public.booking_messages FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = sender_id);
@@ -54,9 +58,11 @@ CREATE TABLE IF NOT EXISTS public.blocked_dates (
 
 ALTER TABLE public.blocked_dates ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public can read blocked dates" ON public.blocked_dates;
 CREATE POLICY "Public can read blocked dates"
   ON public.blocked_dates FOR SELECT TO anon, authenticated USING (true);
 
+DROP POLICY IF EXISTS "Owners can manage their blocked dates" ON public.blocked_dates;
 CREATE POLICY "Owners can manage their blocked dates"
   ON public.blocked_dates FOR ALL TO authenticated
   USING (auth.uid() = user_id)
@@ -74,9 +80,11 @@ CREATE TABLE IF NOT EXISTS public.pearl_points (
 
 ALTER TABLE public.pearl_points ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can read own points" ON public.pearl_points;
 CREATE POLICY "Users can read own points"
   ON public.pearl_points FOR SELECT TO authenticated USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can read all points" ON public.pearl_points;
 CREATE POLICY "Admins can read all points"
   ON public.pearl_points FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin'));
@@ -213,10 +221,12 @@ CREATE TABLE IF NOT EXISTS public.referrals (
 
 ALTER TABLE public.referrals ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can read own referrals" ON public.referrals;
 CREATE POLICY "Users can read own referrals"
   ON public.referrals FOR SELECT TO authenticated
   USING (referrer_id = auth.uid() OR referred_id = auth.uid());
 
+DROP POLICY IF EXISTS "Users can create referrals" ON public.referrals;
 CREATE POLICY "Users can create referrals"
   ON public.referrals FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = referrer_id);
@@ -272,21 +282,61 @@ $$;
 CREATE TABLE IF NOT EXISTS public.ical_tokens (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  token      TEXT NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(24), 'hex'),
+  token      TEXT NOT NULL UNIQUE DEFAULT md5(gen_random_uuid()::text || clock_timestamp()::text),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 ALTER TABLE public.ical_tokens ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own iCal tokens" ON public.ical_tokens;
 CREATE POLICY "Users can manage own iCal tokens"
   ON public.ical_tokens FOR ALL TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
 -- ── 8. Enable Realtime on booking_messages ────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE public.booking_messages;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.blocked_dates;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.bookings;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_publication_rel pr
+    JOIN pg_class c ON c.oid = pr.prrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    JOIN pg_publication p ON p.oid = pr.prpubid
+    WHERE p.pubname = 'supabase_realtime'
+      AND n.nspname = 'public'
+      AND c.relname = 'booking_messages'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.booking_messages;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_publication_rel pr
+    JOIN pg_class c ON c.oid = pr.prrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    JOIN pg_publication p ON p.oid = pr.prpubid
+    WHERE p.pubname = 'supabase_realtime'
+      AND n.nspname = 'public'
+      AND c.relname = 'blocked_dates'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.blocked_dates;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_publication_rel pr
+    JOIN pg_class c ON c.oid = pr.prrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    JOIN pg_publication p ON p.oid = pr.prpubid
+    WHERE p.pubname = 'supabase_realtime'
+      AND n.nspname = 'public'
+      AND c.relname = 'bookings'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.bookings;
+  END IF;
+END;
+$$;
 
 -- ── 9. Preferred language on profiles ────────────────────────
 DO $$ BEGIN
@@ -318,36 +368,69 @@ STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT id::text, name as title, 'stay' as listing_type, location,
-         price_per_night as price, COALESCE(images[1], '') as image, rating
-  FROM public.stays_listings
-  WHERE moderation_status = 'approved' AND active = true
-    AND (title ILIKE '%' || p_query || '%' OR location ILIKE '%' || p_query || '%' OR name ILIKE '%' || p_query || '%')
-  LIMIT p_limit / 4
+  SELECT * FROM (
+    SELECT
+      s.id::text,
+      s.title,
+      'stay'::text AS listing_type,
+      s.location,
+      s.price_per_night AS price,
+      COALESCE(s.images[1], '') AS image,
+      0::numeric AS rating
+    FROM public.stays_listings s
+    WHERE s.moderation_status = 'approved'
+      AND s.active = true
+      AND (s.title ILIKE '%' || p_query || '%' OR s.location ILIKE '%' || p_query || '%')
 
-  UNION ALL
+    UNION ALL
 
-  SELECT id::text, title, 'vehicle', location, price_per_day, COALESCE(images[1], ''), rating
-  FROM public.vehicles_listings
-  WHERE moderation_status = 'approved' AND active = true
-    AND (title ILIKE '%' || p_query || '%' OR location ILIKE '%' || p_query || '%')
-  LIMIT p_limit / 4
+    SELECT
+      v.id::text,
+      COALESCE(v.title, concat_ws(' ', v.make, v.model)) AS title,
+      'vehicle'::text AS listing_type,
+      v.location,
+      v.price_per_day AS price,
+      COALESCE(v.images[1], '') AS image,
+      0::numeric AS rating
+    FROM public.vehicles_listings v
+    WHERE v.moderation_status = 'approved'
+      AND v.active = true
+      AND (
+        COALESCE(v.title, concat_ws(' ', v.make, v.model)) ILIKE '%' || p_query || '%'
+        OR v.location ILIKE '%' || p_query || '%'
+      )
 
-  UNION ALL
+    UNION ALL
 
-  SELECT id::text, title, 'event', location, COALESCE(price_standard, 0), COALESCE(images[1], ''), 0
-  FROM public.events_listings
-  WHERE moderation_status = 'approved' AND active = true
-    AND (title ILIKE '%' || p_query || '%' OR location ILIKE '%' || p_query || '%' OR venue ILIKE '%' || p_query || '%')
-  LIMIT p_limit / 4
+    SELECT
+      e.id::text,
+      e.title,
+      'event'::text AS listing_type,
+      e.location,
+      e.price AS price,
+      COALESCE(e.images[1], '') AS image,
+      0::numeric AS rating
+    FROM public.events_listings e
+    WHERE e.moderation_status = 'approved'
+      AND e.active = true
+      AND (e.title ILIKE '%' || p_query || '%' OR e.location ILIKE '%' || p_query || '%' OR e.venue ILIKE '%' || p_query || '%')
 
-  UNION ALL
+    UNION ALL
 
-  SELECT id::text, title, 'property', location, price, COALESCE(images[1], ''), 0
-  FROM public.properties_listings
-  WHERE moderation_status = 'approved' AND active = true
-    AND (title ILIKE '%' || p_query || '%' OR location ILIKE '%' || p_query || '%')
-  LIMIT p_limit / 4;
+    SELECT
+      p.id::text,
+      p.title,
+      'property'::text AS listing_type,
+      p.location,
+      p.price,
+      COALESCE(p.images[1], '') AS image,
+      0::numeric AS rating
+    FROM public.properties_listings p
+    WHERE p.moderation_status = 'approved'
+      AND p.active = true
+      AND (p.title ILIKE '%' || p_query || '%' OR p.location ILIKE '%' || p_query || '%')
+  ) all_listings
+  LIMIT GREATEST(1, p_limit);
 $$;
 
 -- ── 11. Payment gateway audit log ─────────────────────────
@@ -368,10 +451,12 @@ CREATE TABLE IF NOT EXISTS public.payment_attempts (
 
 ALTER TABLE public.payment_attempts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can read own payment attempts" ON public.payment_attempts;
 CREATE POLICY "Users can read own payment attempts"
   ON public.payment_attempts FOR SELECT TO authenticated
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can read all payment attempts" ON public.payment_attempts;
 CREATE POLICY "Admins can read all payment attempts"
   ON public.payment_attempts FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin'));
