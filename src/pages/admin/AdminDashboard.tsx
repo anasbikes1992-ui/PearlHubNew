@@ -3,6 +3,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Navigate } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
+import { fetchAdminMetrics, resolveUserReport, type AdminMetrics } from '@/lib/admin-control';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
@@ -178,12 +179,26 @@ export default function AdminDashboard() {
   } = useStore();
 
   const [reports, setReports] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(false);
   const [tab, setTab] = useState<AdminTab>('overview');
 
   useEffect(() => {
-    if (userRole === 'admin') {
-      supabase.from('user_reports' as any).select('*').eq('status', 'pending').then(({ data }) => setReports(data || []));
-    }
+    if (userRole !== 'admin') return;
+
+    setMetricsLoading(true);
+    Promise.all([
+      supabase.from('user_reports' as any).select('*').in('status', ['pending', 'investigating']).order('created_at', { ascending: false }),
+      fetchAdminMetrics(30),
+    ])
+      .then(([reportsRes, metricsRes]) => {
+        setReports(reportsRes.data || []);
+        setMetrics(metricsRes);
+      })
+      .catch((err) => {
+        console.error('Admin dashboard load error:', err);
+      })
+      .finally(() => setMetricsLoading(false));
   }, [userRole]);
 
   const { profile } = useAuth();
@@ -263,6 +278,31 @@ export default function AdminDashboard() {
         {/* Overview */}
         {tab === 'overview' && (
           <div className="space-y-10">
+            {metrics && (
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {[
+                  { label: 'Users', value: metrics.users_total, icon: '👥', color: 'text-sapphire bg-sapphire/10' },
+                  { label: 'Providers', value: metrics.providers_total, icon: '🧭', color: 'text-indigo-500 bg-indigo-500/10' },
+                  { label: 'Bookings 30d', value: metrics.bookings_total, icon: '🧾', color: 'text-emerald-500 bg-emerald-500/10' },
+                  { label: 'GMV LKR 30d', value: formatPrice(metrics.gmv_lkr_window, 'LKR'), icon: '💰', color: 'text-amber-500 bg-amber-500/10' },
+                  { label: 'Open Reports', value: metrics.reports_open, icon: '🚩', color: 'text-ruby bg-ruby/10' },
+                  { label: 'Open Rides', value: metrics.rides_open, icon: '🚕', color: 'text-teal-500 bg-teal-500/10' },
+                ].map((stat) => (
+                  <div key={stat.label} className={`rounded-2xl p-5 border border-white/10 group hover:border-white/20 transition-all ${stat.color}`}>
+                    <div className="text-2xl mb-3 group-hover:scale-110 transition-transform">{stat.icon}</div>
+                    <div className="text-lg font-black text-pearl truncate">{stat.value}</div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-mist mt-1">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!metrics && metricsLoading && (
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-xs font-black uppercase tracking-widest text-mist">
+                Loading live admin metrics...
+              </div>
+            )}
+
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
               {[
                 { label: 'Stays', value: stats.stays, icon: '🏨', color: 'text-emerald-500 bg-emerald-500/10' },
@@ -501,7 +541,21 @@ export default function AdminDashboard() {
                     <p className="text-[10px] text-mist/40 mt-1 font-black uppercase tracking-widest italic">{timeAgo(r.created_at)}</p>
                   </div>
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="sm" variant="ghost" className="rounded-xl text-emerald hover:bg-emerald/10 uppercase text-[9px] font-black tracking-widest group-hover:text-white">Resolve</Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="rounded-xl text-emerald hover:bg-emerald/10 uppercase text-[9px] font-black tracking-widest group-hover:text-white"
+                      onClick={async () => {
+                        try {
+                          await resolveUserReport({ reportId: r.id, status: 'resolved', adminNote: 'Resolved from Admin Dashboard' });
+                          setReports((prev) => prev.filter((item) => item.id !== r.id));
+                        } catch (err) {
+                          console.error('Failed to resolve report:', err);
+                        }
+                      }}
+                    >
+                      Resolve
+                    </Button>
                     <Button size="sm" variant="ghost" className="rounded-xl text-ruby hover:bg-ruby/10 uppercase text-[9px] font-black tracking-widest group-hover:text-white">Block Asset</Button>
                   </div>
                 </div>

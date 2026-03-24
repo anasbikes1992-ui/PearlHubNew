@@ -99,6 +99,79 @@ CREATE INDEX IF NOT EXISTS idx_social_moderation_status
 CREATE INDEX IF NOT EXISTS idx_sme_businesses_moderation_status
   ON public.sme_businesses (moderation_status, updated_at DESC);
 
+-- Ensure moderation columns exist on legacy environments.
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'stays_listings' AND column_name = 'moderation_status') THEN
+    ALTER TABLE public.stays_listings ADD COLUMN moderation_status TEXT DEFAULT 'pending' CHECK (moderation_status IN ('pending', 'approved', 'rejected', 'suspended'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'stays_listings' AND column_name = 'active') THEN
+    ALTER TABLE public.stays_listings ADD COLUMN active BOOLEAN NOT NULL DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'stays_listings' AND column_name = 'admin_notes') THEN
+    ALTER TABLE public.stays_listings ADD COLUMN admin_notes TEXT DEFAULT '';
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'vehicles_listings' AND column_name = 'moderation_status') THEN
+    ALTER TABLE public.vehicles_listings ADD COLUMN moderation_status TEXT DEFAULT 'pending' CHECK (moderation_status IN ('pending', 'approved', 'rejected', 'suspended'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'vehicles_listings' AND column_name = 'active') THEN
+    ALTER TABLE public.vehicles_listings ADD COLUMN active BOOLEAN NOT NULL DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'vehicles_listings' AND column_name = 'admin_notes') THEN
+    ALTER TABLE public.vehicles_listings ADD COLUMN admin_notes TEXT DEFAULT '';
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'events_listings' AND column_name = 'moderation_status') THEN
+    ALTER TABLE public.events_listings ADD COLUMN moderation_status TEXT DEFAULT 'pending' CHECK (moderation_status IN ('pending', 'approved', 'rejected', 'suspended'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'events_listings' AND column_name = 'active') THEN
+    ALTER TABLE public.events_listings ADD COLUMN active BOOLEAN NOT NULL DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'events_listings' AND column_name = 'admin_notes') THEN
+    ALTER TABLE public.events_listings ADD COLUMN admin_notes TEXT DEFAULT '';
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'properties_listings' AND column_name = 'moderation_status') THEN
+    ALTER TABLE public.properties_listings ADD COLUMN moderation_status TEXT DEFAULT 'pending' CHECK (moderation_status IN ('pending', 'approved', 'rejected', 'suspended'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'properties_listings' AND column_name = 'active') THEN
+    ALTER TABLE public.properties_listings ADD COLUMN active BOOLEAN NOT NULL DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'properties_listings' AND column_name = 'admin_notes') THEN
+    ALTER TABLE public.properties_listings ADD COLUMN admin_notes TEXT DEFAULT '';
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'social_listings' AND column_name = 'moderation_status') THEN
+    ALTER TABLE public.social_listings ADD COLUMN moderation_status TEXT DEFAULT 'pending' CHECK (moderation_status IN ('pending', 'approved', 'rejected', 'suspended'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'social_listings' AND column_name = 'active') THEN
+    ALTER TABLE public.social_listings ADD COLUMN active BOOLEAN NOT NULL DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'social_listings' AND column_name = 'admin_notes') THEN
+    ALTER TABLE public.social_listings ADD COLUMN admin_notes TEXT DEFAULT '';
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'sme_businesses' AND column_name = 'moderation_status') THEN
+    ALTER TABLE public.sme_businesses ADD COLUMN moderation_status TEXT DEFAULT 'pending' CHECK (moderation_status IN ('pending', 'approved', 'rejected', 'suspended'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'sme_businesses' AND column_name = 'active') THEN
+    ALTER TABLE public.sme_businesses ADD COLUMN active BOOLEAN NOT NULL DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'sme_businesses' AND column_name = 'admin_notes') THEN
+    ALTER TABLE public.sme_businesses ADD COLUMN admin_notes TEXT DEFAULT '';
+  END IF;
+END $$;
+
 -- Ensure wallet currency exists for metrics aggregation.
 DO $$ BEGIN
   IF NOT EXISTS (
