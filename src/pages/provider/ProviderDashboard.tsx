@@ -77,9 +77,9 @@ const StatusBadge = ({ status }: { status: ListingStatus }) => {
   const variants: Record<ListingStatus, string> = {
     active: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
     paused: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-    off: 'bg-ruby-500/10 text-ruby-500 border-ruby-500/20',
-    pending: 'bg-sapphire-500/10 text-sapphire-500 border-sapphire-500/20',
-    rejected: 'bg-mist-500/10 text-mist-500 border-mist-500/20',
+    off: 'bg-ruby/10 text-ruby border-ruby/20',
+    pending: 'bg-sapphire/10 text-sapphire border-sapphire/20',
+    rejected: 'bg-mist/10 text-mist border-mist/20',
   };
   return <Badge variant="outline" className={`uppercase text-[10px] font-black tracking-widest ${variants[status]}`}>{status}</Badge>;
 };
@@ -209,7 +209,7 @@ export default function ProviderDashboard() {
                 { label: 'Inventory', value: totalListings, icon: '📋', color: 'bg-white/5 border-white/10' },
                 { label: 'Live Now', value: activeListings, icon: '✅', color: 'bg-emerald-500/5 border-emerald-500/10' },
                 { label: 'Pending', value: pendingListings, icon: '⏳', color: 'bg-amber-500/5 border-amber-500/10' },
-                { label: 'Hidden', value: totalListings - activeListings - pendingListings, icon: '⏸️', color: 'bg-ruby-500/5 border-ruby-500/10' },
+                { label: 'Hidden', value: totalListings - activeListings - pendingListings, icon: '⏸️', color: 'bg-ruby/5 border-ruby/10' },
               ].map((stat) => (
                 <div key={stat.label} className={`${stat.color} rounded-[2rem] p-6 border transition-all hover:scale-[1.02] cursor-default`}>
                   <div className="text-3xl mb-4">{stat.icon}</div>

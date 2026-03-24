@@ -8,7 +8,7 @@ export interface ProfileData {
   full_name: string;
   email: string;
   phone: string;
-  role: string;          // matches app_role enum: customer | owner | broker | admin | stay_provider | vehicle_provider | event_provider | sme
+  role: string;          // matches app_role enum: customer | owner | broker | admin | stay_provider | vehicle_provider | event_organizer | sme
   avatar_url: string;
   nic: string;
   verified: boolean;

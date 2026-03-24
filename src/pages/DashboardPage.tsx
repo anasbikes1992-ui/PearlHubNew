@@ -52,10 +52,10 @@ const DashboardPage = () => {
   };
   const displayBookings = realBookings.map((b: any) => ({
     id: `PH-${b.id?.slice(0, 8)?.toUpperCase() ?? "---"}`,
-    service: `${b.listing_type?.charAt(0)?.toUpperCase() + b.listing_type?.slice(1) ?? "Booking"} #${b.id?.slice(0, 6)?.toUpperCase()}`,
+    service: `${b.listing_type ? b.listing_type.charAt(0).toUpperCase() + b.listing_type.slice(1) : "Booking"} #${b.id?.slice(0, 6)?.toUpperCase() ?? "---"}`,
     date: b.booking_date ? new Date(b.booking_date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—",
     amount: b.total_amount ?? 0,
-    status: b.status?.charAt(0)?.toUpperCase() + b.status?.slice(1) ?? "Pending",
+    status: b.status ? b.status.charAt(0).toUpperCase() + b.status.slice(1) : "Pending",
     icon: BOOKING_ICONS[b.listing_type] ?? "📋",
     currency: b.currency ?? "LKR",
   }));

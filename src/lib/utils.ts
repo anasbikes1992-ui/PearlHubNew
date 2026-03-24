@@ -58,7 +58,7 @@ export function obfuscateEmail(email: string): string {
 export const PERMISSIONS = {
   canListStay: (role: UserRole) => ['admin', 'stay_provider'].includes(role),
   canListVehicle: (role: UserRole) => ['admin', 'vehicle_provider'].includes(role),
-  canListEvent: (role: UserRole) => ['admin', 'event_provider'].includes(role),
+  canListEvent: (role: UserRole) => ['admin', 'event_organizer'].includes(role),
   canListProperty: (role: UserRole) => ['admin', 'owner', 'broker'].includes(role),
   canPostWanted: (role: UserRole) => ['admin', 'owner', 'broker', 'customer'].includes(role),
   canRegisterSME: (role: UserRole) => ['sme', 'admin'].includes(role),

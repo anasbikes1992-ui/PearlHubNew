@@ -30,7 +30,7 @@ const roleOptions: { value: UserRole; label: string; desc: string }[] = [
   { value: "broker",           label: "🏢 Licensed Broker", desc: "Manage multiple listings" },
   { value: "stay_provider",    label: "🏨 Stay Provider",   desc: "Hotels, villas, guest houses" },
   { value: "vehicle_provider", label: "🚗 Vehicle Provider",desc: "Cars, vans, rentals" },
-  { value: "event_provider",   label: "🎫 Event Provider",  desc: "List & manage events" },
+  { value: "event_organizer",  label: "🎫 Event Provider",  desc: "List & manage events" },
   { value: "sme",              label: "🏪 SME / Business",  desc: "Local goods & services" },
 ];
 

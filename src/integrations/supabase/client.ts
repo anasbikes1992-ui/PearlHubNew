@@ -11,8 +11,8 @@ const SUPABASE_URL =
   'https://pxuydclxnnfgzpzccfoa.supabase.co';
 
 const SUPABASE_PUBLISHABLE_KEY =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   'sb_publishable_XJZSHY9N6n1JVg9JvRd31Q_cJ5kjqBk';
 
 // Import the supabase client like this:

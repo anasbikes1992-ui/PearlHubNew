@@ -19,9 +19,9 @@ const StatusBadge = ({ status }: { status: ListingStatus }) => {
   const variants: Record<ListingStatus, string> = {
     active: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
     paused: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-    off: 'bg-ruby-500/10 text-ruby-500 border-ruby-500/20',
-    pending: 'bg-sapphire-500/10 text-sapphire-500 border-sapphire-500/20',
-    rejected: 'bg-mist-500/10 text-mist-500 border-mist-500/20',
+    off: 'bg-ruby/10 text-ruby border-ruby/20',
+    pending: 'bg-sapphire/10 text-sapphire border-sapphire/20',
+    rejected: 'bg-mist/10 text-mist border-mist/20',
   };
   return <Badge variant="outline" className={`uppercase text-[10px] font-black tracking-widest ${variants[status]}`}>{status}</Badge>;
 };
@@ -39,9 +39,9 @@ function StatusControlModal({
   const statusColors: Record<ListingStatus, string> = {
     active: 'border-emerald-500 bg-emerald-500/5',
     paused: 'border-amber-500 bg-amber-500/5',
-    off: 'border-ruby-500 bg-ruby-500/5', // using off as rejected/ruby
-    pending: 'border-sapphire-500 bg-sapphire-500/5',
-    rejected: 'border-mist-500 bg-mist-500/5',
+    off: 'border-ruby bg-ruby/5', // using off as rejected/ruby
+    pending: 'border-sapphire bg-sapphire/5',
+    rejected: 'border-mist bg-mist/5',
   };
 
   return (
@@ -266,12 +266,12 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
               {[
                 { label: 'Stays', value: stats.stays, icon: '🏨', color: 'text-emerald-500 bg-emerald-500/10' },
-                { label: 'Vehicles', value: stats.vehicles, icon: '🚗', color: 'text-sapphire-500 bg-sapphire-500/10' },
+                { label: 'Vehicles', value: stats.vehicles, icon: '🚗', color: 'text-sapphire bg-sapphire/10' },
                 { label: 'Events', value: stats.events, icon: '🎭', color: 'text-indigo-500 bg-indigo-500/10' },
                 { label: 'Props', value: stats.properties, icon: '🏡', color: 'text-amber-500 bg-amber-500/10' },
                 { label: 'Posts', value: stats.social, icon: '🌏', color: 'text-teal-500 bg-teal-500/10' },
                 { label: 'SMEs', value: stats.sme, icon: '🛍️', color: 'text-orange-500 bg-orange-500/10' },
-                { label: 'Pending', value: stats.pending, icon: '⏳', color: 'text-ruby-500 bg-ruby-500/10' },
+                { label: 'Pending', value: stats.pending, icon: '⏳', color: 'text-ruby bg-ruby/10' },
               ].map((stat) => (
                 <div key={stat.label} className={`rounded-2xl p-5 border border-white/10 group hover:border-white/20 transition-all ${stat.color}`}>
                   <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">{stat.icon}</div>

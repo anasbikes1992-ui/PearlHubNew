@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useStore } from "@/store/useStore";
@@ -39,10 +39,12 @@ const TaxiPage = () => {
   const [phone, setPhone] = useState("");
   const [packageSize, setPackageSize] = useState("Medium");
 
-  // Auto-select first category when loaded
-  if (categories.length > 0 && !selectedCat) {
-    setSelectedCat(categories[2] || categories[0]);
-  }
+  // Auto-select first category when categories load (must be in useEffect, not render body)
+  useEffect(() => {
+    if (categories.length > 0 && !selectedCat) {
+      setSelectedCat(categories[2] || categories[0]);
+    }
+  }, [categories]);
 
   // Server-side promo validation
   const handleValidatePromo = async () => {
@@ -102,8 +104,10 @@ const TaxiPage = () => {
 
   const submitRating = async () => {
     if (currentRideId && user) {
+      // Fetch the ride to get the driver_id before inserting the rating
+      const { data: rideData } = await (supabase as any).from("taxi_rides").select("driver_id").eq("id", currentRideId).single();
       await (supabase as any).from("taxi_ratings").insert({
-        ride_id: currentRideId, reviewer_id: user.id, target_id: user.id,
+        ride_id: currentRideId, reviewer_id: user.id, target_id: rideData?.driver_id ?? user.id,
         rating, tip_amount: parseFloat(tip) || 0,
       });
       await (supabase as any).from("taxi_rides").update({ status: "completed" }).eq("id", currentRideId);

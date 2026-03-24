@@ -130,7 +130,7 @@ const INITIAL_USERS: Record<string, UserProfile> = {
   broker: { id: "U-BROK", name: "Licensed Broker", email: "broker@demo.com", role: "broker", balance: 85000, verified: true },
   stay_provider: { id: "U-STAY", name: "Stay Manager", email: "stay@demo.com", role: "stay_provider", balance: 45000, verified: true },
   vehicle_provider: { id: "U-VEH", name: "Fleet Manager", email: "vehicle@demo.com", role: "vehicle_provider", balance: 35000, verified: true },
-  event_provider: { id: "U-EVT", name: "Event Curator", email: "event@demo.com", role: "event_provider", balance: 22000, verified: true },
+  event_organizer: { id: "U-EVT", name: "Event Curator", email: "event@demo.com", role: "event_organizer", balance: 22000, verified: true },
   sme: { id: "U-SME", name: "SME Operator", email: "sme@demo.com", role: "sme", balance: 18000, verified: true },
 };
 

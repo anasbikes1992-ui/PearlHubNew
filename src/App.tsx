@@ -74,7 +74,8 @@ const AuthSync = () => {
         nic: profile.nic,
       });
       setUserRole(profile.role as UserRole);
-    } else {
+    } else if (!user) {
+      // Only clear state when there is truly no session
       logout();
     }
   }, [user, profile, loading]);
@@ -179,7 +180,7 @@ export const router = createBrowserRouter([
       {
         path: "provider",
         element: (
-          <RequireAuth roles={["owner", "broker", "stay_provider", "vehicle_provider", "event_provider", "sme"]}>
+          <RequireAuth roles={["owner", "broker", "stay_provider", "vehicle_provider", "event_organizer", "sme"]}>
             <ProviderDashboard />
           </RequireAuth>
         ),

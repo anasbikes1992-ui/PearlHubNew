@@ -5,7 +5,7 @@ export type UserRole =
   | 'admin'
   | 'stay_provider'
   | 'vehicle_provider'
-  | 'event_provider'
+  | 'event_organizer'
   | 'owner' // property owner
   | 'broker' // property broker
   | 'sme' // sme business
