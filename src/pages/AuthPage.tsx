@@ -67,7 +67,7 @@ const AuthPage = () => {
       });
       setUserRole(profile.role as UserRole);
       // Redirect based on role
-      if (profile.role === "admin") navigate("/admin", { replace: true });
+      if (profile.role === "admin") navigate("/admin35", { replace: true });
       else if (profile.role === "customer") navigate("/dashboard", { replace: true });
       else navigate("/provider", { replace: true });
     }

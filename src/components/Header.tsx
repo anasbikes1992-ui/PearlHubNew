@@ -213,7 +213,7 @@ const Header = () => {
             {currentUser ? "Sign Out" : "Sign In"}
           </button>
 
-          <Link to={PERMISSIONS.isAdmin(userRole) ? "/admin" : PERMISSIONS.isProvider(userRole) ? "/provider" : "/dashboard"}
+          <Link to={PERMISSIONS.isAdmin(userRole) ? "/admin35" : PERMISSIONS.isProvider(userRole) ? "/provider" : "/dashboard"}
             className="bg-gradient-to-br from-primary to-gold-dark text-primary-foreground px-4 py-[7px] rounded-md text-[13px] font-bold flex items-center gap-1.5 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all">
             📊 Dashboard
           </Link>
@@ -260,7 +260,7 @@ const Header = () => {
                 {currentUser ? "Sign Out" : "Sign In"}
               </button>
 
-              <Link to={PERMISSIONS.isAdmin(userRole) ? "/admin" : PERMISSIONS.isProvider(userRole) ? "/provider" : "/dashboard"}
+              <Link to={PERMISSIONS.isAdmin(userRole) ? "/admin35" : PERMISSIONS.isProvider(userRole) ? "/provider" : "/dashboard"}
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full bg-gradient-to-r from-primary to-gold-dark text-primary-foreground py-3 rounded-lg text-sm font-bold text-center shadow-lg">
                 📊 Go to Dashboard

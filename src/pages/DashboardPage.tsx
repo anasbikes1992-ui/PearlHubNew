@@ -25,7 +25,7 @@ const DashboardPage = () => {
   // Redirect specialized roles to their respective dashboards
   useEffect(() => {
     if (userRole === "admin") {
-      navigate("/admin");
+      navigate("/admin35");
     } else if (["owner", "broker", "stay_provider", "vehicle_provider", "event_organizer", "sme"].includes(userRole)) {
       navigate("/provider");
     }

@@ -105,7 +105,7 @@ export default function ProviderDashboard() {
 
   // Guard: require real Supabase session
   if (!authUser) return <Navigate to="/login" replace />;
-  if (userRole === 'admin') return <Navigate to="/admin" replace />;
+  if (userRole === 'admin') return <Navigate to="/admin35" replace />;
   if (userRole === 'customer') return <Navigate to="/" replace />;
 
 

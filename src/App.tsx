@@ -170,7 +170,7 @@ export const router = createBrowserRouter([
       { path: "privacy",        element: <TermsPage /> },
       { path: "for-business", element: <ForBusinessPage /> },
       {
-        path: "admin",
+        path: "admin35",
         element: (
           <RequireAuth roles={["admin"]}>
             <AdminDashboard />
