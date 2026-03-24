@@ -1,0 +1,30 @@
+name: pearlhub_customer
+description: PearlHub Customer App — browse listings, book stays/vehicles/events, hail taxis, AI concierge.
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared:
+    path: ../shared
+  flutter_riverpod: ^2.6.0
+  riverpod_annotation: ^2.6.1
+  go_router: ^14.8.0
+  google_maps_flutter: ^2.10.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  cached_network_image: ^3.4.1
+  flutter_svg: ^2.0.16
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
