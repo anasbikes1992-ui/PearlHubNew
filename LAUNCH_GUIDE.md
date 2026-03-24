@@ -4,7 +4,7 @@
 
 ### Frontend (React + TypeScript)
 - Authentication: real Supabase auth (signup, login, password reset, session persistence)
-- Role-based access: customer, owner, broker, stay_provider, vehicle_provider, event_provider, sme, admin
+- Role-based access: customer, owner, broker, stay_provider, vehicle_provider, event_organizer, sme, admin
 - All listing pages: Properties, Stays, Vehicles, Events — reading from Supabase via React Query
 - Admin dashboard: listing moderation, user reports, analytics
 - Provider dashboard: listing management, predictive revenue chart, pricing advisor, availability calendar

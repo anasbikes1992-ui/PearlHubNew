@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MapMarker } from "@/types/pearl-hub";
+import { MapMarker } from "@/types";
 
 declare global {
   interface Window { L: any; }
